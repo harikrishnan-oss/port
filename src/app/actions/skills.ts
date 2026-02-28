@@ -30,3 +30,14 @@ export async function removeSkillServer(id: string) {
         return { success: false, error: e.message };
     }
 }
+
+export async function getSkillsServer() {
+    try {
+        const { data, error } = await supabase.from('skills').select('*').order('order', { ascending: true });
+        if (error) throw error;
+        return { success: true, data };
+    } catch (e: any) {
+        console.error("Server Action Error (Get Skills):", e);
+        return { success: false, error: e.message };
+    }
+}

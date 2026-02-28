@@ -3,7 +3,7 @@
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { addAchievementServer, updateAchievementServer, removeAchievementServer } from "@/app/actions/achievements";
+import { addAchievementServer, updateAchievementServer, removeAchievementServer, getAchievementsServer } from "@/app/actions/achievements";
 
 interface Achievement {
     id?: string;
@@ -22,9 +22,9 @@ export default function ManageAchievementsPage() {
 
     useEffect(() => {
         const fetchAchievements = async () => {
-            const { data, error } = await supabase.from('achievements').select('*').order('order', { ascending: true });
-            if (data) {
-                const mapped = data.map(a => ({
+            const res = await getAchievementsServer();
+            if (res.success && res.data) {
+                const mapped = res.data.map((a: any) => ({
                     id: a.id,
                     year: a.date || "",
                     title: a.title || "",

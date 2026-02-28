@@ -3,7 +3,7 @@
 import { Plus, Trash2, Link as LinkIcon, Github, Pencil, Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { addProjectServer, updateProjectServer, removeProjectServer } from "@/app/actions/projects";
+import { addProjectServer, updateProjectServer, removeProjectServer, getProjectsServer } from "@/app/actions/projects";
 
 interface Project {
     id: string;
@@ -32,9 +32,9 @@ export default function ManageProjectsPage() {
 
     useEffect(() => {
         const fetchProjects = async () => {
-            const { data, error } = await supabase.from('projects').select('*').order('order', { ascending: true });
-            if (data) {
-                const mapped = data.map(p => ({
+            const res = await getProjectsServer();
+            if (res.success && res.data) {
+                const mapped = res.data.map((p: any) => ({
                     id: p.id,
                     title: p.title,
                     description: p.description,

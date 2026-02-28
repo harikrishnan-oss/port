@@ -4,7 +4,7 @@ import { Save } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
-import { updateAboutServer } from "@/app/actions/about";
+import { updateAboutServer, getAboutServer } from "@/app/actions/about";
 
 const DEFAULT_BIO = `Computer Science & Business Systems student • Web Developer
 Studying at Rajalakshmi Institute of Technology (2nd year)`;
@@ -22,10 +22,10 @@ export default function EditAboutPage() {
 
     useEffect(() => {
         const fetchContent = async () => {
-            const { data, error } = await supabase.from('portfolio_content').select('*').eq('id', 1).single();
-            if (data) {
-                setBio(data.bio_text || DEFAULT_BIO);
-                setAboutContent(data.about_content || DEFAULT_ABOUT);
+            const res = await getAboutServer();
+            if (res.success && res.data) {
+                setBio(res.data.bio_text || DEFAULT_BIO);
+                setAboutContent(res.data.about_content || DEFAULT_ABOUT);
             } else {
                 setBio(DEFAULT_BIO);
                 setAboutContent(DEFAULT_ABOUT);

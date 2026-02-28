@@ -46,3 +46,15 @@ export async function removeProjectServer(id: string) {
         return { success: false, error: e.message };
     }
 }
+
+export async function getProjectsServer() {
+    try {
+        const { data, error } = await supabase.from('projects').select('*').order('order', { ascending: true });
+        if (error) throw error;
+        return { success: true, data };
+    } catch (e: any) {
+        console.error("Server Action Error (Get Projects):", e);
+        return { success: false, error: e.message };
+    }
+}
+

@@ -19,3 +19,14 @@ export async function updateAboutServer(bioText: string, aboutContent: string) {
         return { success: false, error: e.message };
     }
 }
+
+export async function getAboutServer() {
+    try {
+        const { data, error } = await supabase.from('portfolio_content').select('*').eq('id', 1).single();
+        if (error && error.code !== 'PGRST116') throw error; // Ignore no rows error
+        return { success: true, data };
+    } catch (e: any) {
+        console.error("Server Action Error (Get About):", e);
+        return { success: false, error: e.message };
+    }
+}

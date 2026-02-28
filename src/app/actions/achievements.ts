@@ -46,3 +46,15 @@ export async function removeAchievementServer(id: string) {
         return { success: false, error: e.message };
     }
 }
+
+export async function getAchievementsServer() {
+    try {
+        const { data, error } = await supabase.from('achievements').select('*').order('order', { ascending: true });
+        if (error) throw error;
+        return { success: true, data };
+    } catch (e: any) {
+        console.error("Server Action Error (Get Achievements):", e);
+        return { success: false, error: e.message };
+    }
+}
+

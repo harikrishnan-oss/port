@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
 
-import { addSkillServer, removeSkillServer } from "@/app/actions/skills";
+import { addSkillServer, removeSkillServer, getSkillsServer } from "@/app/actions/skills";
 
 interface Skill {
     id: string;
@@ -20,13 +20,10 @@ export default function ManageSkillsPage() {
 
     useEffect(() => {
         const fetchSkills = async () => {
-            const { data, error } = await supabase
-                .from('skills')
-                .select('*')
-                .order('order', { ascending: true });
+            const res = await getSkillsServer();
 
-            if (data) {
-                setSkills(data);
+            if (res.success && res.data) {
+                setSkills(res.data);
             }
         };
         fetchSkills();
