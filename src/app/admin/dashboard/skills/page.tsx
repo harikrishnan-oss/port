@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
 
+import { addSkillServer, removeSkillServer } from "@/app/actions/skills";
+
 interface Skill {
     id: string;
     name: string;
@@ -36,18 +38,15 @@ export default function ManageSkillsPage() {
         if (trimmed && !skills.some(s => s.name === trimmed)) {
             const newOrder = skills.length > 0 ? Math.max(...skills.map(s => s.order || 0)) + 1 : 0;
 
-            const { data, error } = await supabase
-                .from('skills')
-                .insert([{ name: trimmed, order: newOrder }])
-                .select();
+            const res = await addSkillServer(trimmed, newOrder);
 
-            if (data && data.length > 0) {
-                setSkills([...skills, data[0]]);
+            if (res.success && res.data && res.data.length > 0) {
+                setSkills([...skills, res.data[0]]);
                 setNewSkill("");
                 setMsg("Skill added successfully!");
                 setTimeout(() => setMsg(""), 3000);
-            } else if (error) {
-                console.error("Error adding skill", error);
+            } else {
+                console.error("Error adding skill", res.error);
                 setMsg("Failed to add skill.");
                 setTimeout(() => setMsg(""), 3000);
             }
@@ -55,12 +54,12 @@ export default function ManageSkillsPage() {
     };
 
     const removeSkill = async (id: string) => {
-        const { error } = await supabase.from('skills').delete().eq('id', id);
-        if (!error) {
+        const res = await removeSkillServer(id);
+        if (res.success) {
             setSkills(skills.filter(s => s.id !== id));
             setMsg("Skill removed successfully!");
         } else {
-            console.error("Error removing skill", error);
+            console.error("Error removing skill", res.error);
             setMsg("Failed to remove skill.");
         }
         setTimeout(() => setMsg(""), 3000);
