@@ -1,8 +1,5 @@
-"use client";
-
 import { ArrowRight, Mail } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 const DEFAULT_BIO_HTML = (
@@ -14,57 +11,35 @@ const DEFAULT_BIO_HTML = (
     </>
 );
 
-export default function Hero() {
-    const [bioContent, setBioContent] = useState<React.ReactNode>(DEFAULT_BIO_HTML);
-    const [mounted, setMounted] = useState(false);
+export default async function Hero() {
+    let bioContent: React.ReactNode = DEFAULT_BIO_HTML;
 
-    useEffect(() => {
-        setMounted(true);
+    try {
+        const { data, error } = await supabase
+            .from('portfolio_content')
+            .select('bio_text')
+            .eq('id', 1)
+            .single();
 
-        const fetchBio = async () => {
-            try {
-                const { data, error } = await supabase
-                    .from('portfolio_content')
-                    .select('bio_text')
-                    .eq('id', 1)
-                    .single();
-
-                if (data?.bio_text) {
-                    const savedBio = data.bio_text;
-                    setBioContent(
-                        <>
-                            {savedBio.split('\n').map((line: string, i: number) => (
-                                <span key={i}>
-                                    {line}
-                                    {i < savedBio.split('\n').length - 1 && <br />}
-                                </span>
-                            ))}
-                        </>
-                    );
-                }
-            } catch (err) {
-                console.error("Error fetching bio:", err);
-            }
-        };
-
-        fetchBio();
-    }, []);
-
-    // Prevent hydration mismatch
-    if (!mounted) {
-        return (
-            <section className="section hero-bg" style={{ minHeight: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', position: 'relative' }}>
-                <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-                    {/* Static Skeleton or just hidden content to prevent jumps */}
-                    <div style={{ opacity: 0 }}>Loading...</div>
-                </div>
-            </section>
-        )
+        if (data?.bio_text) {
+            const savedBio = data.bio_text;
+            bioContent = (
+                <>
+                    {savedBio.split('\n').map((line: string, i: number) => (
+                        <span key={i}>
+                            {line}
+                            {i < savedBio.split('\n').length - 1 && <br />}
+                        </span>
+                    ))}
+                </>
+            );
+        }
+    } catch (err) {
+        console.error("Error fetching bio:", err);
     }
 
     return (
         <section className="section hero-bg" style={{ minHeight: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', position: 'relative' }}>
-
             {/* Decorative particles */}
             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
                 <div className="particle" style={{ left: '10%', animationDelay: '0s' }}></div>
@@ -75,7 +50,6 @@ export default function Hero() {
 
             <div className="container" style={{ position: 'relative', zIndex: 1 }}>
                 <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-
                     <h2 style={{
                         color: 'var(--primary)',
                         fontWeight: 500,
@@ -118,7 +92,6 @@ export default function Hero() {
                             Contact Me <Mail size={18} />
                         </Link>
                     </div>
-
                 </div>
             </div>
         </section>

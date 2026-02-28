@@ -1,7 +1,4 @@
-"use client";
-
 import { Trophy } from "lucide-react";
-import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 const INITIAL_ACHIEVEMENTS = [
@@ -10,33 +7,26 @@ const INITIAL_ACHIEVEMENTS = [
     { year: "2022", title: "Hackathon Winner", org: "Global Hack 2022", description: "Built an AI-powered accessibility tool in 48 hours." },
 ];
 
-export default function Achievements() {
-    const [achievements, setAchievements] = useState(INITIAL_ACHIEVEMENTS);
+export default async function Achievements() {
+    let achievements = INITIAL_ACHIEVEMENTS;
 
-    useEffect(() => {
-        const fetchAchievements = async () => {
-            try {
-                const { data, error } = await supabase
-                    .from('achievements')
-                    .select('*')
-                    .order('order', { ascending: true });
+    try {
+        const { data, error } = await supabase
+            .from('achievements')
+            .select('*')
+            .order('order', { ascending: true });
 
-                if (data && data.length > 0) {
-                    const formatted = data.map((a: any) => ({
-                        year: a.date || "",
-                        title: a.title || "",
-                        org: a.icon || "", // Re-using icon column for org info temporarily
-                        description: a.description || ""
-                    }));
-                    setAchievements(formatted);
-                }
-            } catch (err) {
-                console.error("Error fetching achievements:", err);
-            }
-        };
-
-        fetchAchievements();
-    }, []);
+        if (data && data.length > 0) {
+            achievements = data.map((a: any) => ({
+                year: a.date || "",
+                title: a.title || "",
+                org: a.icon || "",
+                description: a.description || ""
+            }));
+        }
+    } catch (err) {
+        console.error("Error fetching achievements:", err);
+    }
 
     return (
         <section id="achievements" className="section">

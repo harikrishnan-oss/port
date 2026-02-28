@@ -5,6 +5,8 @@ import Projects from "@/components/Projects";
 import Achievements from "@/components/Achievements";
 import Contact from "@/components/Contact";
 
+export const revalidate = 0;
+
 export default function Home() {
   return (
     <main>

@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 const DEFAULT_SKILLS = [
@@ -9,39 +6,29 @@ const DEFAULT_SKILLS = [
     "Git", "Docker", "AWS", "Figma", "Tailwind CSS"
 ];
 
-export default function Skills() {
-    const [skills, setSkills] = useState(DEFAULT_SKILLS);
-    const [mounted, setMounted] = useState(false);
+export default async function Skills() {
+    let skills = DEFAULT_SKILLS;
 
-    useEffect(() => {
-        setMounted(true);
+    try {
+        const { data, error } = await supabase
+            .from('skills')
+            .select('*')
+            .order('order', { ascending: true });
 
-        const fetchSkills = async () => {
-            try {
-                const { data, error } = await supabase
-                    .from('skills')
-                    .select('*')
-                    .order('order', { ascending: true });
-
-                if (data && data.length > 0) {
-                    // Extracting names from structured return data assuming skill items have a 'name' property
-                    setSkills(data.map((s: any) => s.name));
-                }
-            } catch (err) {
-                console.error("Error fetching skills:", err);
-            }
-        };
-
-        fetchSkills();
-    }, []);
+        if (data && data.length > 0) {
+            skills = data.map((s: any) => s.name);
+        }
+    } catch (err) {
+        console.error("Error fetching skills:", err);
+    }
 
     return (
         <section id="skills" className="section">
             <div className="container">
                 <h2 className="section-title">Skills & Technologies</h2>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                    {(mounted ? skills : DEFAULT_SKILLS).map((skill) => (
-                        <span key={skill} style={{
+                    {skills.map((skill, idx) => (
+                        <span key={idx} style={{
                             background: 'var(--card-bg)',
                             border: '1px solid var(--card-border)',
                             padding: '0.6rem 1.2rem',

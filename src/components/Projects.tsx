@@ -1,9 +1,5 @@
-"use client";
-
 import { ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-
 import { supabase } from "@/lib/supabase";
 
 interface Project {
@@ -42,47 +38,27 @@ const DEFAULT_PROJECTS: Project[] = [
     }
 ];
 
-export default function Projects() {
-    const [projects, setProjects] = useState<Project[]>(DEFAULT_PROJECTS);
-    const [mounted, setMounted] = useState(false);
+export default async function Projects() {
+    let projects = DEFAULT_PROJECTS;
 
-    useEffect(() => {
-        setMounted(true);
-        const fetchProjects = async () => {
-            try {
-                const { data, error } = await supabase
-                    .from('projects')
-                    .select('*')
-                    .order('order', { ascending: true });
+    try {
+        const { data, error } = await supabase
+            .from('projects')
+            .select('*')
+            .order('order', { ascending: true });
 
-                if (data && data.length > 0) {
-                    const formatted = data.map((p: any) => ({
-                        id: p.id,
-                        title: p.title,
-                        description: p.description,
-                        tags: p.tech_stack || [],
-                        link: p.live_url || "",
-                        github: p.github_url || ""
-                    }));
-                    setProjects(formatted);
-                }
-            } catch (err) {
-                console.error("Error fetching projects:", err);
-            }
-        };
-
-        fetchProjects();
-    }, []);
-
-    if (!mounted) {
-        return (
-            <section id="projects" className="section">
-                <div className="container">
-                    <h2 className="section-title">Featured Projects</h2>
-                    <p>Loading projects...</p>
-                </div>
-            </section>
-        );
+        if (data && data.length > 0) {
+            projects = data.map((p: any) => ({
+                id: p.id,
+                title: p.title,
+                description: p.description,
+                tags: p.tech_stack || [],
+                link: p.live_url || "",
+                github: p.github_url || ""
+            }));
+        }
+    } catch (err) {
+        console.error("Error fetching projects:", err);
     }
 
     return (
@@ -114,7 +90,6 @@ export default function Projects() {
                                     </span>
                                 ))}
                             </div>
-
                         </div>
                     ))}
                 </div>
