@@ -47,8 +47,7 @@ export default function ManageSkillsPage() {
                 setTimeout(() => setMsg(""), 3000);
             } else {
                 console.error("Error adding skill", res.error);
-                setMsg("Failed to add skill.");
-                setTimeout(() => setMsg(""), 3000);
+                setMsg("Failed to add skill: " + String(res.error));
             }
         }
     };
@@ -58,11 +57,11 @@ export default function ManageSkillsPage() {
         if (res.success) {
             setSkills(skills.filter(s => s.id !== id));
             setMsg("Skill removed successfully!");
+            setTimeout(() => setMsg(""), 3000);
         } else {
             console.error("Error removing skill", res.error);
-            setMsg("Failed to remove skill.");
+            setMsg("Failed to remove skill: " + String(res.error));
         }
-        setTimeout(() => setMsg(""), 3000);
     };
 
     return (
