@@ -3,6 +3,7 @@
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { addAchievementServer, updateAchievementServer, removeAchievementServer } from "@/app/actions/achievements";
 
 interface Achievement {
     id?: string;
@@ -42,35 +43,35 @@ export default function ManageAchievementsPage() {
 
         if (editId) {
             // Update existing
-            const { error } = await supabase.from('achievements').update({
+            const res = await updateAchievementServer(editId, {
                 title: formData.title,
                 description: formData.description,
                 date: formData.year,
                 icon: formData.org
-            }).eq('id', editId);
+            });
 
-            if (!error) {
+            if (res.success) {
                 const updated = achievements.map(a => a.id === editId ? { ...formData, id: editId, order: a.order } : a);
                 setAchievements(updated);
                 setMsg("Achievement updated successfully");
             } else {
-                console.error(error);
-                setMsg("Failed to update achievement");
+                console.error(res.error);
+                setMsg("Failed to update achievement: " + String(res.error));
             }
             setEditId(null);
         } else {
             // Add new
             const newOrder = achievements.length > 0 ? Math.max(...achievements.map(a => a.order || 0)) + 1 : 0;
-            const { data, error } = await supabase.from('achievements').insert([{
+            const res = await addAchievementServer({
                 title: formData.title,
                 description: formData.description,
                 date: formData.year,
                 icon: formData.org,
                 order: newOrder
-            }]).select();
+            });
 
-            if (data && data.length > 0) {
-                const a = data[0];
+            if (res.success && res.data && res.data.length > 0) {
+                const a = res.data[0];
                 const newAchievement: Achievement = {
                     id: a.id,
                     year: a.date || "",
@@ -82,8 +83,8 @@ export default function ManageAchievementsPage() {
                 setAchievements([newAchievement, ...achievements]);
                 setMsg("Achievement added successfully");
             } else {
-                console.error(error);
-                setMsg("Failed to add achievement");
+                console.error(res.error);
+                setMsg("Failed to add achievement: " + String(res.error));
             }
         }
 
@@ -100,8 +101,8 @@ export default function ManageAchievementsPage() {
     const handleDelete = async (id?: string) => {
         if (!id) return;
         if (confirm("Are you sure you want to delete this achievement?")) {
-            const { error } = await supabase.from('achievements').delete().eq('id', id);
-            if (!error) {
+            const res = await removeAchievementServer(id);
+            if (res.success) {
                 setAchievements(achievements.filter(a => a.id !== id));
                 if (editId === id) {
                     setEditId(null);
@@ -110,7 +111,8 @@ export default function ManageAchievementsPage() {
                 setMsg("Achievement deleted successfully");
                 setTimeout(() => setMsg(""), 3000);
             } else {
-                console.error(error);
+                console.error(res.error);
+                setMsg("Failed to delete: " + String(res.error));
             }
         }
     };

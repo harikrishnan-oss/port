@@ -3,6 +3,7 @@
 import { Plus, Trash2, Link as LinkIcon, Github, Pencil, Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { addProjectServer, updateProjectServer, removeProjectServer } from "@/app/actions/projects";
 
 interface Project {
     id: string;
@@ -55,13 +56,13 @@ export default function ManageProjectsPage() {
 
     const handleDelete = async (id: string) => {
         if (confirm("Are you sure you want to delete this project?")) {
-            const { error } = await supabase.from('projects').delete().eq('id', id);
-            if (!error) {
+            const res = await removeProjectServer(id);
+            if (res.success) {
                 setProjects(projects.filter(p => p.id !== id));
                 showSuccess("Project deleted successfully");
             } else {
-                console.error(error);
-                showSuccess("Failed to delete project");
+                console.error(res.error);
+                showSuccess("Failed to delete project: " + String(res.error));
             }
         }
     };
@@ -93,15 +94,15 @@ export default function ManageProjectsPage() {
         if (editId) {
             // Update Logic
             const techStack = tags.split(',').map(t => t.trim()).filter(Boolean);
-            const { error } = await supabase.from('projects').update({
+            const res = await updateProjectServer(editId, {
                 title,
                 description,
                 tech_stack: techStack,
                 live_url: link,
                 github_url: github
-            }).eq('id', editId);
+            });
 
-            if (!error) {
+            if (res.success) {
                 const updatedProjects = projects.map(p => {
                     if (p.id === editId) {
                         return { ...p, title, description, tags: techStack, link, github };
@@ -111,24 +112,24 @@ export default function ManageProjectsPage() {
                 setProjects(updatedProjects);
                 showSuccess("Project updated successfully!");
             } else {
-                console.error(error);
-                showSuccess("Failed to update project.");
+                console.error(res.error);
+                showSuccess("Failed to update project: " + String(res.error));
             }
         } else {
             // Add Logic
             const newOrder = projects.length > 0 ? Math.max(...projects.map(p => p.order)) + 1 : 0;
             const techStack = tags.split(',').map(t => t.trim()).filter(Boolean);
-            const { data, error } = await supabase.from('projects').insert([{
+            const res = await addProjectServer({
                 title,
                 description,
                 tech_stack: techStack,
                 live_url: link,
                 github_url: github,
                 order: newOrder
-            }]).select();
+            });
 
-            if (data && data.length > 0) {
-                const p = data[0];
+            if (res.success && res.data && res.data.length > 0) {
+                const p = res.data[0];
                 const newProject: Project = {
                     id: p.id,
                     title: p.title,
@@ -141,8 +142,8 @@ export default function ManageProjectsPage() {
                 setProjects([newProject, ...projects]);
                 showSuccess("Project added successfully!");
             } else {
-                console.error(error);
-                showSuccess("Failed to add project.");
+                console.error(res.error);
+                showSuccess("Failed to add project: " + String(res.error));
             }
         }
 

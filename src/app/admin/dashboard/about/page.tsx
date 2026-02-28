@@ -4,6 +4,7 @@ import { Save } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
+import { updateAboutServer } from "@/app/actions/about";
 
 const DEFAULT_BIO = `Computer Science & Business Systems student • Web Developer
 Studying at Rajalakshmi Institute of Technology (2nd year)`;
@@ -34,15 +35,13 @@ export default function EditAboutPage() {
     }, []);
 
     const handleSave = async () => {
-        const { error } = await supabase
-            .from('portfolio_content')
-            .upsert({ id: 1, bio_text: bio, about_content: aboutContent });
+        const res = await updateAboutServer(bio, aboutContent);
 
-        if (!error) {
+        if (res.success) {
             setMsg("About Me updated successfully!");
         } else {
-            console.error(error);
-            setMsg("Failed to update.");
+            console.error(res.error);
+            setMsg("Failed to update: " + String(res.error));
         }
         setTimeout(() => setMsg(""), 3000);
     };
