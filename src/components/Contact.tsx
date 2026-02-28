@@ -23,15 +23,12 @@ export default function Contact() {
                         <Link href="https://www.linkedin.com/in/hari-krishnan-s-v-3974b332a" target="_blank" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }} className="hover:text-white">
                             <Linkedin size={28} />
                         </Link>
-                        <Link href="#" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }} className="hover:text-white">
-                            <Twitter size={28} />
-                        </Link>
                     </div>
                 </div>
 
                 <div style={{ marginTop: '4rem', textAlign: 'center', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                        © {new Date().getFullYear()} Alex Designer. All rights reserved.
+                        © {new Date().getFullYear()} Hari Krishnan. All rights reserved.
                     </p>
                     <div style={{ marginTop: '1rem' }}>
                         <Link href="/admin/login" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'underline' }}>
